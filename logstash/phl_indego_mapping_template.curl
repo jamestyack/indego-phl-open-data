@@ -1,0 +1,25 @@
+curl -XPUT localhost:9200/_template/template_phl_indego -d '
+{
+  "template" : "logstash-phl-indego*",
+  "mappings": {
+    "indego_station": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "norms": {
+            "enabled": false
+          },
+          "index": "not_analyzed"
+        },
+        "addressStreet": {
+          "type": "string",
+          "norms": {
+            "enabled": false
+          },
+          "index": "not_analyzed"
+        }
+      }
+    }
+  }
+}
+'
