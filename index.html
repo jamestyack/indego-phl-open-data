@@ -10,10 +10,10 @@
     <style>
 
 @import url(//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.2/leaflet.css);
-@import url(style.css?aea6f0a);
+
 
 #map {
-  width: 960px;
+  width: 100%;
   height: 600px;
 }
 
@@ -40,8 +40,60 @@ path:hover {
     <!-- Font Awesome -->
     <link href="bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Raleway:400,700,800' rel='stylesheet' type='text/css'>
-  
     <link href="css/main.css" rel="stylesheet">
+    <style>
+			body {
+    			background-color: black;
+			}
+			
+			input {
+    			font-size: 16px;
+			}
+		
+			.d3-tip {
+				line-height: 1;
+				padding: 12px;
+				background: rgba(0, 0, 0, 0.8);
+				color: #fff;
+				border-radius: 2px;
+				font-family: sans-serif;
+				font-size: 12px;
+				text-align: center;
+			}
+
+			.d3-tip p {
+				margin: 0 0 1 em 0;
+			}
+
+			.d3-tip ul {
+				margin: 0;
+				padding-left: 2em;
+			}
+
+			.d3-tip li {
+				margin: 0.5em 0 0 0;
+			}
+
+			/* Creates a small triangle extender for the tooltip */
+			.d3-tip:after {
+				box-sizing: border-box;
+				display: inline;
+				font-size: 10px;
+				width: 100%;
+				line-height: 3;
+				color: rgba(0, 0, 0, 0.8);
+				content: "\25BC";
+				position: absolute;
+				text-align: center;
+			}
+
+			/* Style northward tooltips differently */
+			.d3-tip.n:after {
+				margin: -1px 0 0 0;
+				top: 100%;
+				left: 0;
+			}
+		</style>
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -55,11 +107,15 @@ path:hover {
         <a class='pledge' target='_blank' >Philadelphia Bike Share - Stations Bikes and Docks</a>
       </div>
     </div>
-  	
-    <div class="container">
+  	<div class="container-fluid">
     	<div class="row">
-        <div class="col-md-3">.col-md-3</div>
-        <div class="col-md-9"><p id='map'></p></div>
+        	<div class="col-md-2">
+        		<p id='tstamp' style='color: white'>ts</p>
+        		<p id='summary' style='color: white'>summary</p>
+        	</div>
+        	<div class="col-md-10">
+        	<div id='map'></div>
+        	</div>
       </div>
      </div>
 	
@@ -67,62 +123,12 @@ path:hover {
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="http://d3js.org/d3.v3.min.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.2/leaflet.js"></script>
-	<script>
+	<script src="scripts/d3/d3.v3.min.js"></script>
+	<script src="scripts/d3.tip.js"></script>
+	<script src="scripts/bikeviz.js"></script>
 
-var features = {};
 
-var map = new L.Map("map", {center: [39.95472, -75.18323], zoom: 14})
-    .addLayer(new L.TileLayer("http://{s}.tiles.mapbox.com/v3/jamestyack.mh29p6b3/{z}/{x}/{y}.png"));
-
-var svg = d3.select(map.getPanes().overlayPane).append("svg"),
-    g = svg.append("g").attr("class", "leaflet-zoom-hide");
-
-d3.json("stations/stations.json", function(collection) {
-  var transform = d3.geo.transform({point: projectPoint}),
-      path = d3.geo.path().projection(transform);
-
-  // collection.features.forEach(function (feature) {
-  	// features[feature.properties.kioskId] = feature;
-  	// g.select("path")
-  	  // .data(feature)
-  	  // .enter().append("path");
-  	  // map.on("viewreset", reset);
-  // });
-  // reset();
-  	
-  var feature = g. 	selectAll("path")
-    .data(collection.features)
-    .enter().append("path");
-  console.log(feature);
-  map.on("viewreset", reset);
-  reset();
-
-  // Reposition the SVG to cover the features.
-  function reset() {
-    var bounds = path.bounds(collection),
-        topLeft = bounds[0],
-        bottomRight = bounds[1];
-
-    svg .attr("width", bottomRight[0] - topLeft[0])
-        .attr("height", bottomRight[1] - topLeft[1])
-        .style("left", topLeft[0] + "px")
-        .style("top", topLeft[1] + "px");
-
-    g   .attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
-
-    feature.attr("d", path);
-  }
-
-  // Use Leaflet to implement a D3 geometric transformation.
-  function projectPoint(x, y) {
-    var point = map.latLngToLayerPoint(new L.LatLng(y, x));
-    this.stream.point(point.x, point.y);
-  }
-});
-
-</script>
 	
   </body>
 </html>
