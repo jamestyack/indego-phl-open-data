@@ -3,9 +3,35 @@ import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.Date
 //2015-05-28T01:12:21.603Z
-case class StationSnap(ts: java.sql.Timestamp, kioskId: Int, bikesAvailable: Int, docksAvailable: Int, totalDocks: Int, kioskPublicStatus: String)
+case class StationSnap(
+    ts: java.sql.Timestamp, 
+    kioskId: Long, 
+    bikesAvailable: Long, 
+    docksAvailable: Long, 
+    totalDocks: Long, 
+    kioskPublicStatus: String,
+    bikesAvailablePercent: Integer
+    )
 
-def getTimestamp(x:Any) :java.sql.Timestamp = {
+case class StationsSummary(
+    ts: java.sql.Timestamp, 
+    kiosksActive: Long, 
+    totalKiosks: Long,
+    bikesAvailable: Long, 
+    docksAvailable: Long, 
+    totalDocks: Long)
+
+
+implicit def ordered: Ordering[Timestamp] = new Ordering[Timestamp] {
+    def compare(x: Timestamp, y: Timestamp): Int = x compareTo y
+}
+
+// compare StationsSummary
+implicit def ordered: Ordering[StationsSummary] = new Ordering[StationsSummary] {
+    def compare(x: StationsSummary, y: StationsSummary): Int = x.ts compareTo y.ts
+}
+
+def getTimestamp(x:Any) : java.sql.Timestamp = {
 	val format = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm")
     val d = format.parse(x.toString());
     val t = new Timestamp(d.getTime());
@@ -15,16 +41,29 @@ def getTimestamp(x:Any) :java.sql.Timestamp = {
 def convert(row :org.apache.spark.sql.Row) : StationSnap = {
 	val ts = row(0).toString
 	val d1 = getTimestamp(ts.substring(0,10) + " " + ts.substring(11,16))
-    return StationSnap(d1,row (1),row(2),row(3), row(4))
+    return StationSnap(d1,
+        row(1).asInstanceOf[Long],
+        row(2).asInstanceOf[Long],
+        row(3).asInstanceOf[Long], 
+        row(4).asInstanceOf[Long], 
+        row(5).toString(),
+        math.round(row(2).asInstanceOf[Long].toFloat/row(4).asInstanceOf[Long].toFloat*100))
 }
 
 val statFile = sc.textFile("/Users/jamestyack/Desktop/es_logstash-phl-ind-2015.05.28.json")
 val jsons = statFile.filter(l => l.length() > 1).map(l => if (l.startsWith(",")) l.substring(1,l.length()) else l)
 val jsonRdd = sqlContext.jsonRDD(jsons)
 val stationRows = jsonRdd.select(jsonRdd("_source.@timestamp"),jsonRdd("_source.properties.kioskId"),jsonRdd("_source.properties.bikesAvailable"),jsonRdd("_source.properties.docksAvailable"),jsonRdd("_source.properties.totalDocks"),jsonRdd("_source.properties.kioskPublicStatus"))
+
 val stationRowsAbbrevTS = stationRows.map(row => convert(row))
-val listOfStations = stationRowsAbbrevTS.map(row => StationSnap(getTimestamp(row(0).toString().substring(0,10) + " " + row(0).toString().substring(11,16)),row(1),row(2),row(3),row(4),row(5)))
-val statsGrpByTs= listOfStations.groupBy(_.apply(0))
+stationRowsAbbrevTS.first
+stationRowsAbbrevTS.take(20).foreach(r => println(r))
+
+val statsGrpByTsSorted = stationRowsAbbrevTS.groupBy(_.ts).sortByKey()
+//val statsGrpByTsSortedWithSummary = statsGrpByTsSorted.map((k,v) => (k, v.bikesAvailable))
+
+
+statsGrpByTs.reduce(a, b => 
 
 
 scala> jsonSchemaRDD.printSchema

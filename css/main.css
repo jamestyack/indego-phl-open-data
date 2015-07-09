@@ -1,0 +1,50 @@
+.page-header {
+  margin-top: 5px;
+}
+
+.pledge {
+  color: #5a5a5a;
+  font-size: 1.5em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.nav li {
+}
+
+.jumbotron .container {
+	height: 200px;
+}
+
+.jumbotron h1 {
+  font-weight: bold;
+}
+
+.jumbotron p {
+  font-size: 20px;
+  color: #fff;
+}
+
+.learn-more {
+}
+
+.learn-more h1 {
+  font-family: 'Raleway', serif;
+  font-weight: 800;
+}
+
+.learn-more h2 {
+  font-family: 'Raleway', serif;
+  font-weight: 400;
+}
+
+.learn-more h3 {
+  font-family: 'Raleway', serif;
+}
+
+
+.learn-more li {
+  font-family: 'Raleway', serif;
+  font-size: 1.8em;
+  margin-left: 20px;
+}
