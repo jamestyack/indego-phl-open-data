@@ -36,8 +36,11 @@ Tasks
 * Spark : Aggregate summary data to structure
 * Get StationSnap formatted to compact JSON output
 * Devise map startup to render empty stations (using key)
+
 * Devise timer / figure out how to work with json rows/timestamp
 * Devise map updates with StationSnap on timer (using key)
+* Fix map (Mapbox -> OSM)
 * Add clock to page and update it
 * Add summary data to web page
 * Add slider and ability to stop/plan/speed etc.
+

@@ -7,6 +7,8 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 import java.io._
 
+val date = "2015.07.10"
+
 //2015-05-28T01:12:21.603Z
 
 // some case classes
@@ -44,7 +46,8 @@ implicit def ordered: Ordering[StationsSummary] = new Ordering[StationsSummary] 
 def getTimestamp(x:Any) : java.sql.Timestamp = {
 	val format = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm")
     val d = format.parse(x.toString());
-    val t = new Timestamp(d.getTime());
+    val t = new Timestamp(d.getTime() - (60 * 60 * 1000 * 4));
+    println(x.toString() + " -> " + t.toString())
     return t
 }
 
@@ -52,6 +55,7 @@ def getTimestamp(x:Any) : java.sql.Timestamp = {
 // also adds the percentage
 def convert(row :org.apache.spark.sql.Row) : StationSnap = {
 	val ts = row(0).toString
+  println(ts.toString())
 	val d1 = getTimestamp(ts.substring(0,10) + " " + ts.substring(11,16))
     return StationSnap(d1,
         row(1).asInstanceOf[Long],
@@ -66,7 +70,7 @@ def convert(row :org.apache.spark.sql.Row) : StationSnap = {
 }
 
 // get file
-val statFile = sc.textFile("/Users/jamestyack/git/indego-phl-open-data/bigdata/sampledata/es_logstash-phl-ind-2015.07.03")
+val statFile = sc.textFile(s"/Users/jamestyack/git/indego-phl-open-data/bigdata/sampledata/es_logstash-phl-ind-$date")
 
 // lots of rows of json
 val jsons = statFile.filter(l => l.length() > 1).map(l => if (l.startsWith(",")) l.substring(1,l.length()) else l)
@@ -102,8 +106,6 @@ val allTimes = stationsGroupedByTsSorted.map(row => {
 
 val gson = new Gson
 val jsonString = gson.toJson(allTimes.collect)
-val pw = new PrintWriter(new File("/Users/jamestyack/git/indego-phl-open-data/bigdata/statSnaps2015.07.03.json" ))
+val pw = new PrintWriter(new File(s"/Users/jamestyack/git/indego-phl-open-data/bigdata/statSnaps$date.json" ))
 pw.write(jsonString)
 pw.close
-
-
